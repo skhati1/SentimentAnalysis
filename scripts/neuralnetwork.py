@@ -117,6 +117,6 @@ derivedModel.add(Dense(32, activation='relu', input_dim=dimensions))
 derivedModel.add(Dense(1, activation='sigmoid'))
 derivedModel.compile(optimizer = 'rmsprop', loss='binary_crossentropy', metrics=['accuracy'])
 
-derivedModel.fit(train_vectors, y_train, epochs=100, batch_size=32, verbose=2)
+derivedModel.fit(train_vectors, y_train, epochs=10, batch_size=32, verbose=2)
 accuracy = derivedModel.evaluate(test_vectors, y_test, batch_size=128, verbose=2)
-print(accuracy)
+print('Accuracy achieved was', accuracy[1])

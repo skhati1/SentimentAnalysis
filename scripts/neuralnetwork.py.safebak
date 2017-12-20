@@ -10,9 +10,6 @@ from tqdm import tqdm
 from sklearn.preprocessing import scale
 from keras.models import Sequential
 from keras.layers import Activation, Dense
-from sklearn.tree import DecisionTreeClassifier
-from sklearn import svm
-from sklearn.metrics import classification_report
 
 import gensim as gs
 import numpy as np
@@ -42,8 +39,8 @@ def cleanTweets(data):
 	data.drop('index', inplace=True, axis=1)
 	return data
 
-def loadDataset(n):
-	inputData = pd.read_csv('../data/training_1.csv')
+def loadDataset():
+	inputData = pd.read_csv('../data/datasubset.csv')
 	inputData.drop(['ItemID', 'Date', 'Query', 'User'], axis=1, inplace=True)
 	inputData = inputData[inputData.Sentiment.isnull() == False]
 
@@ -53,11 +50,9 @@ def loadDataset(n):
 	inputData = inputData[inputData['Tweet'].isnull() == False]
 	inputData.reset_index(inplace=True)
 	inputData.drop('index', axis=1, inplace=True)
-	inputData['Sentiment'] = inputData['Sentiment'].map( {4:1, 0:0} )
+
 	#randomly shuffle so as not to get skewed straightforward data
 	inputData = inputData.reindex(np.random.permutation(inputData.index))
-
-	inputData = inputData.head(n)
 	return inputData
 
 def makeLabelizedSentences(data, label):
@@ -81,20 +76,15 @@ def buildFormattedWordVector(wordTokens, totalSize):
 	return vector
 
 
-n=90000
-print("loaded datasets")
-inputData = loadDataset(n)
-print("cleaned datasets")
+n=10419
+inputData = loadDataset()
 inputData = cleanTweets(inputData)
 #separating data of 10,419 tweets to test and train
-print("splitting update ")
 x_train, x_test, y_train, y_test = train_test_split(np.array(inputData.head(n).tokens),np.array(inputData.head(n).Sentiment), test_size=0.2)
 
-print("Make L sentences")
 x_train=makeLabelizedSentences(x_train, 'TRAIN')
 x_test=makeLabelizedSentences(x_test, 'TEST')
 
-print("Do other stuff now")
 #at this point, we have a list of tokens and a label. so we can build a word2vec model now
 dimensions=200
 
@@ -122,24 +112,11 @@ test_vectors = np.concatenate(test_vectors)
 test_vectors = scale(test_vectors)
 
 #now we can feed these vectors to a neural network classifier for processing using Keras
-#derivedModel = Sequential()
-#derivedModel.add(Dense(32, activation='relu', input_dim=dimensions))
-#derivedModel.add(Dense(1, activation='sigmoid'))
-#derivedModel.compile(optimizer = 'rmsprop', loss='binary_crossentropy', metrics=['accuracy'])
+derivedModel = Sequential()
+derivedModel.add(Dense(32, activation='relu', input_dim=dimensions))
+derivedModel.add(Dense(1, activation='sigmoid'))
+derivedModel.compile(optimizer = 'rmsprop', loss='binary_crossentropy', metrics=['accuracy'])
 
-#derivedModel.fit(train_vectors, y_train, epochs=100, batch_size=32, verbose=2)
-#accuracy = derivedModel.evaluate(test_vectors, y_test, batch_size=128, verbose=2)
-#print('Accuracy achieved was', accuracy[1])
-
-
-#now we can feed these vectors to a decision tree classifier for processing using Keras
-#derivedModel = DecisionTreeClassifier(random_state=0, )
-#derivedModel.fit(train_vectors, y_train)
-#accuracy = derivedModel.score(test_vectors, y_test)
-#print('Accuracy achieved was', accuracy)
-
-#now try svm
-derivedModel = svm.SVC(kernel='linear')
-derivedModel.fit(train_vectors, y_train)
-accuracy = derivedModel.score(test_vectors, y_tes)
-print('Accuracy achieved was', accuracy)
+derivedModel.fit(train_vectors, y_train, epochs=10, batch_size=32, verbose=2)
+accuracy = derivedModel.evaluate(test_vectors, y_test, batch_size=128, verbose=2)
+print('Accuracy achieved was', accuracy[1])

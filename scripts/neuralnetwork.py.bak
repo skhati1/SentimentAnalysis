@@ -8,8 +8,6 @@ from string import punctuation
 from gensim.models.word2vec import Word2Vec
 from tqdm import tqdm
 from sklearn.preprocessing import scale
-from keras.models import Sequential
-from keras.layers import Activation, Dense
 
 import gensim as gs
 import numpy as np
@@ -70,6 +68,7 @@ def buildFormattedWordVector(wordTokens, totalSize):
 			vector += tweet_vector[wT].reshape((1, totalSize)) * tfidf_matrix[wT]
 			count += 1
 		except KeyError:
+			print("Key error processing {}".format(wT))
 			continue
 	if count != 0:
 		vector = vector / count
@@ -111,12 +110,4 @@ test_vectors = [buildFormattedWordVector(z, dimensions) for z in tqdm(map(lambda
 test_vectors = np.concatenate(test_vectors)
 test_vectors = scale(test_vectors)
 
-#now we can feed these vectors to a neural network classifier for processing using Keras
-derivedModel = Sequential()
-derivedModel.add(Dense(32, activation='relu', input_dim=dimensions))
-derivedModel.add(Dense(1, activation='sigmoid'))
-derivedModel.compile(optimizer = 'rmsprop', loss='binary_crossentropy', metrics=['accuracy'])
-
-derivedModel.fit(train_vectors, y_train, epochs=100, batch_size=32, verbose=2)
-accuracy = derivedModel.evaluate(test_vectors, y_test, batch_size=128, verbose=2)
-print(accuracy)
+#now we can feed these vectors to a neural network classifier for processing

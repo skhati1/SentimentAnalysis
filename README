@@ -1,0 +1,14 @@
+This project is by  Saurabh Khatiwada
+
+- To see the main neural network code, you can view the runner.py
+	- By default running 'python runner.py' will run this algorithm
+	- Opening it up, right below is the decision tree algorithm commented out which can be toggled as wished
+
+-To see the second half, it is merely a text fetch and display
+	- the tickerFetcher.py shows how for a tweet we can get stock prices for the named identity
+	- it is currently hardcoded to demonstrate an example but a quite for loop wrapper from main script would bind it to do this for all tweets
+
+Given more time, I would expand this by using a candle graph to plot out those points to visually show the stock fluctuations 
+However, we can numerically see those differences. No long term impact as stock rose back up the very next day and we knkow there was significant impact by the volume difference among the days as shown in the screenshot in the report.
+
+
